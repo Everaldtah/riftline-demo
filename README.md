@@ -40,17 +40,16 @@ Click the window to capture the mouse; press `Esc` to release it.
 
 ## Heroes
 
-Six heroes across three roles. Each has a primary weapon, two abilities, an
-ultimate, and a passive.
+Five heroes ("Team Nova") across three roles. Each has a primary weapon, two
+abilities, an ultimate, and a passive.
 
 | Hero | Role | HP | Primary | Ability 1 · 2 | Ultimate |
 |---|---|---|---|---|---|
-| **Bulwark** | Anchor | 350 +100a | Hitscan shotgun | Barrier · Charge | Ground Slam |
-| **Tidewall** | Anchor | 400 | Splash projectile | Grapple Pull · Water Wall | Flood (zone) |
+| **Bastion** | Anchor | 350 +100a | Hitscan shotgun | Aegis Shield · Bulwark Charge | Seismic Slam |
+| **Kairo** | Striker | 200 | Charge blade | Seeking Star · Wind Step | Thousand Cuts |
 | **Vex** | Striker | 200 | Dual pistols | Blink ×2 · Smoke | Death Mark |
-| **Halcyon** | Striker | 200 | Charge railgun | Recon Drone · Vault | Piercing Beam |
-| **Lumen** | Mender | 200 | Heal beam (+dmg alt) | Overshield · Flash | Radiance |
-| **Cogwright** | Mender | 200 | Rivet gun | Heal Drone · Repair Pack | Drone Swarm |
+| **Lumen** | Mender | 200 | Heal beam (+dmg alt) | Overshield · Radiant Flash | Radiance |
+| **Oriona** | Mender | 200 | Arcane bolt | Mending Orb · Fate's Thread | Astral Orbs |
 
 ## Modes
 
@@ -98,13 +97,13 @@ src/
   bots/        Bot + BotAI (idle/seek/attack/retreat state machine)
   environments/ Environment base + TrainingArena, RiftPlaza, Skybridge
   modes/       GameMode base + TrainingGround, Deathmatch, ControlPoint
-  ui/          styles, HUD, Menu, HeroSelect
+  ui/          styles, HUD, Menu, HeroGallery
   main.ts      bootstrap
 ```
 
 ## Status
 
-Playable demo. Core FPS mechanics, all six heroes, three modes, and three maps
+Playable demo. Core FPS mechanics, all five heroes, three modes, and three maps
 are implemented and wired end-to-end. Bots use a deliberately beatable AI so the
 demo is approachable.
 

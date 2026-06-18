@@ -14,9 +14,10 @@ import { RiftPlaza } from "../environments/RiftPlaza";
 import { Skybridge } from "../environments/Skybridge";
 import { HUD } from "../ui/HUD";
 import { Menu, type MenuChoice } from "../ui/Menu";
-import { HeroSelect } from "../ui/HeroSelect";
+import { HeroGallery } from "../ui/HeroGallery";
+import { config } from "../data/config";
 
-type Phase = "menu" | "heroselect" | "match" | "paused" | "results";
+type Phase = "menu" | "gallery" | "match" | "paused" | "results";
 
 function makeEnv(id: MenuChoice["envId"], scene: THREE.Scene, physics: Physics): Environment {
   if (id === "training") return new TrainingArena(scene, physics);
@@ -39,7 +40,8 @@ export class Game {
   private readonly input: Input;
   private readonly hud = new HUD();
   private readonly menu = new Menu();
-  private readonly heroSelect = new HeroSelect();
+  private gallery: HeroGallery | null = null;
+  private galleryReturn: () => void = () => {};
   private readonly app: HTMLElement;
   private readonly fpsEl: HTMLDivElement;
 
@@ -82,24 +84,80 @@ export class Game {
 
   private showMenu(): void {
     this.menu.onStartProxy = (c) => this.onChooseMode(c);
-    this.menu.showMain(this.app, (c) => this.onChooseMode(c));
+    this.menu.onHeroesProxy = () => this.openGalleryBrowse();
+    this.menu.showMain(this.app, (c) => this.onChooseMode(c), () => this.openGalleryBrowse());
   }
 
   private onChooseMode(c: MenuChoice): void {
-    this.phase = "heroselect";
     this.menu.hide();
-    this.heroSelect.show(
-      this.app,
-      (heroId) => {
-        this.startMatch(c, heroId);
+    this.openGallerySelect(c);
+  }
+
+  // ---- hero gallery -------------------------------------------------------
+
+  // Browse from the main menu: view-only, returns to the menu.
+  private openGalleryBrowse(): void {
+    this.phase = "gallery";
+    this.galleryReturn = () => this.backToMenu();
+    this.gallery = new HeroGallery({ mode: "browse", onClose: () => this.closeGallery() });
+    this.gallery.open(this.app);
+  }
+
+  // After picking a mode: choose a hero, then launch the match.
+  private openGallerySelect(c: MenuChoice): void {
+    this.phase = "gallery";
+    this.galleryReturn = () => this.backToMenu();
+    this.gallery = new HeroGallery({
+      mode: "select",
+      onSelect: (id) => {
+        this.disposeGallery();
+        this.startMatch(c, id);
       },
-      () => this.backToMenu(),
-    );
+      onClose: () => this.closeGallery(),
+    });
+    this.gallery.open(this.app);
+  }
+
+  // Mid-Training (H): swap the live hero, keeping position + ult charge.
+  private openGallerySwitch(): void {
+    if (!this.match) return;
+    this.input.releaseLock();
+    this.phase = "gallery";
+    this.galleryReturn = () => {
+      this.phase = "match";
+      this.input.requestLock();
+    };
+    const resume = (): void => {
+      this.disposeGallery();
+      this.phase = "match";
+      this.input.requestLock();
+    };
+    this.gallery = new HeroGallery({
+      mode: "switch",
+      initialHeroId: this.match.player.data.id,
+      onSelect: (id) => {
+        this.match!.changeHero(id);
+        resume();
+      },
+      onClose: () => this.closeGallery(),
+    });
+    this.gallery.open(this.app);
+  }
+
+  // Cancel/Back/Esc: tear down the gallery, then run the context's return path.
+  private closeGallery(): void {
+    const ret = this.galleryReturn;
+    this.disposeGallery();
+    ret();
+  }
+
+  private disposeGallery(): void {
+    this.gallery?.close();
+    this.gallery = null;
   }
 
   private startMatch(c: MenuChoice, heroId: string): void {
     this.teardownMatch();
-    this.heroSelect.hide();
 
     const scene = new THREE.Scene();
     const physics = new Physics();
@@ -140,6 +198,10 @@ export class Game {
   }
 
   private togglePause(): void {
+    if (this.phase === "gallery") {
+      this.closeGallery();
+      return;
+    }
     if (this.phase === "match") {
       this.phase = "paused";
       this.input.releaseLock();
@@ -157,6 +219,7 @@ export class Game {
   }
 
   private teardownMatch(): void {
+    this.disposeGallery();
     this.match?.dispose();
     this.match = null;
     this.hud.unmount();
@@ -213,7 +276,11 @@ export class Game {
       match.syncView();
       match.postFrame(this.input);
       this.renderer.render(scene, match.camera);
-    } else if (scene && match) {
+      // Training-only: H opens the live hero-swap gallery.
+      if (match.isTraining && this.input.pressed(config.keys.heroGallery)) {
+        this.openGallerySwitch();
+      }
+    } else if ((this.phase === "paused" || this.phase === "results") && scene && match) {
       // paused / results: hold the last frame behind the overlay
       match.syncView();
       this.renderer.render(scene, match.camera);

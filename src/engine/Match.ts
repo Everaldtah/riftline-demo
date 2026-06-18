@@ -38,7 +38,7 @@ export class Match implements World, MatchAPI {
   readonly scene: THREE.Scene;
   readonly physics: Physics;
   readonly env: Environment;
-  readonly player: Hero;
+  private _player: Hero;
   readonly isFFA: boolean;
   readonly bots: Bot[] = [];
 
@@ -86,10 +86,10 @@ export class Match implements World, MatchAPI {
 
     // Local player (team 0). Its body is hidden in first-person but still lives
     // in the scene so shadows/effects resolve.
-    this.player = createHero(heroId, 0, true);
-    this.player.respawnAt(env.spawnFor(0, this.isFFA));
-    scene.add(this.player.group);
-    this.actorList.push(this.player);
+    this._player = createHero(heroId, 0, true);
+    this._player.respawnAt(env.spawnFor(0, this.isFFA));
+    scene.add(this._player.group);
+    this.actorList.push(this._player);
 
     this.controller = new PlayerController(this.player);
 
@@ -108,6 +108,12 @@ export class Match implements World, MatchAPI {
 
   get actors(): readonly Hero[] {
     return this.actorList;
+  }
+  get player(): Hero {
+    return this._player;
+  }
+  get isTraining(): boolean {
+    return this.mode.id === "training";
   }
   time(): number {
     return this.simTime;
@@ -199,7 +205,7 @@ export class Match implements World, MatchAPI {
   }
 
   spawnDummy(pos: THREE.Vector3, _path?: { a: THREE.Vector3; b: THREE.Vector3; speed: number }): Hero {
-    const d = createHero("bulwark", 1, false);
+    const d = createHero("bastion", 1, false);
     d.respawnAt(pos);
     this.scene.add(d.group);
     this.actorList.push(d);
@@ -227,6 +233,32 @@ export class Match implements World, MatchAPI {
 
   respawn(hero: Hero, team?: number): void {
     hero.respawnAt(this.env.spawnFor(team ?? hero.team, this.isFFA));
+  }
+
+  // Swap the local player to a different hero mid-match (Training). Keeps the
+  // current position/facing and ult charge; health/ammo/abilities reset to full.
+  changeHero(heroId: string): void {
+    const old = this._player;
+    const hero = createHero(heroId, 0, true);
+    hero.respawnAt(old.pos.clone()); // resets kit + velocity, sets position; does NOT touch ultCharge
+    hero.yaw = old.yaw;
+    hero.pitch = old.pitch;
+    hero.ultCharge = old.ultCharge;
+    this.scene.add(hero.group);
+    const i = this.actorList.indexOf(old);
+    if (i >= 0) this.actorList[i] = hero;
+    this.controller.setHero(hero);
+    this._player = hero;
+
+    this.scene.remove(old.group);
+    old.group.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.geometry) m.geometry.dispose();
+      if (m.material) {
+        const mats = Array.isArray(m.material) ? m.material : [m.material];
+        mats.forEach((mm) => mm.dispose());
+      }
+    });
   }
 
   end(result: MatchResult): void {

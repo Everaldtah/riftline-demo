@@ -17,12 +17,13 @@ const CHOICES: MenuChoice[] = [
 export class Menu {
   private el: HTMLDivElement | null = null;
 
-  showMain(parent: HTMLElement, onStart: (c: MenuChoice) => void): void {
+  showMain(parent: HTMLElement, onStart: (c: MenuChoice) => void, onHeroes?: () => void): void {
     this.render(parent, (root) => {
       root.innerHTML = `
         <div class="rl-title">RIFTLINE</div>
         <div class="rl-sub">First-person hero shooter · demo</div>
         <div class="rl-row" style="margin-top:14px"></div>
+        <button class="rl-btn small" id="heroesBtn" style="margin-top:8px">Heroes</button>
         <button class="rl-btn small" id="controlsBtn" style="margin-top:8px">Controls / Help</button>
         <div class="muted" style="margin-top:18px;max-width:520px;text-align:center">
           Click to lock the mouse and play. Original IP — all geometry is procedural, no external assets.
@@ -35,6 +36,8 @@ export class Menu {
         b.onclick = () => onStart(c);
         row.appendChild(b);
       }
+      const hb = root.querySelector("#heroesBtn") as HTMLButtonElement;
+      hb.onclick = () => onHeroes?.();
       (root.querySelector("#controlsBtn") as HTMLButtonElement).onclick = () => this.showControls(parent);
     });
   }
@@ -55,12 +58,13 @@ export class Menu {
         </div>
         <button class="rl-btn small" id="back">Back</button>`;
       (root.querySelector("#back") as HTMLButtonElement).onclick = () =>
-        this.showMain(parent, (c) => this.onStartProxy?.(c));
+        this.showMain(parent, (c) => this.onStartProxy?.(c), () => this.onHeroesProxy?.());
     });
   }
 
-  // allow Back from controls to reach the original start handler
+  // allow Back from controls to reach the original start/heroes handlers
   onStartProxy: ((c: MenuChoice) => void) | null = null;
+  onHeroesProxy: (() => void) | null = null;
 
   showPause(parent: HTMLElement, onResume: () => void, onMenu: () => void): void {
     this.render(parent, (root) => {

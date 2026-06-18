@@ -78,4 +78,44 @@ export const UI_CSS = `
 .muted { color:#7e91b5; font-size:13px; }
 kbd { background:#1a2742; border:1px solid #2c4068; border-radius:5px; padding:2px 7px; font-size:12px; }
 table.controls td { padding:6px 14px; color:#cfe0ff; }
+
+/* Hero gallery */
+.gallery { position:fixed; inset:0; z-index:30; background:#070a12; }
+.gallery-canvas { position:absolute; inset:0; z-index:1; display:block; cursor:grab; touch-action:none; }
+.gallery-canvas:active { cursor:grabbing; }
+.gallery-title { position:absolute; top:20px; left:50%; transform:translateX(-50%); z-index:2; text-align:center; pointer-events:none; }
+.gallery-title span { font-size:34px; font-weight:800; letter-spacing:8px;
+  background:linear-gradient(90deg,#38e8ff,#7c5bff); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.gallery-hint { color:#7e91b5; font-size:12px; letter-spacing:2px; margin-top:4px; text-transform:uppercase; }
+.gallery-list { position:absolute; left:22px; top:50%; transform:translateY(-50%); z-index:2;
+  display:flex; flex-direction:column; gap:8px; width:196px; max-height:80vh; overflow-y:auto; }
+.gallery-rolehead { font-size:11px; text-transform:uppercase; letter-spacing:3px; margin-top:10px; opacity:.85; }
+.gallery-rolehead:first-child { margin-top:0; }
+.gallery-hero { display:flex; flex-direction:column; align-items:flex-start; text-align:left;
+  background:#0e1626; border:1px solid #243a60; border-left-width:4px; border-radius:8px;
+  padding:9px 12px; cursor:pointer; transition:.12s; color:#dce8ff; }
+.gallery-hero:hover { background:#152138; transform:translateX(3px); }
+.gallery-hero.active { background:#16243f; border-color:#38e8ff; box-shadow:0 0 14px rgba(56,232,255,.3); }
+.gallery-hero .gh-name { font-size:15px; font-weight:700; }
+.gallery-hero .gh-role { font-size:10px; text-transform:uppercase; letter-spacing:2px; opacity:.8; }
+.gallery-hero.role-anchor { border-left-color:#ffb347; }
+.gallery-hero.role-striker { border-left-color:#ff5470; }
+.gallery-hero.role-mender { border-left-color:#7cffb2; }
+.gallery-info { position:absolute; right:22px; top:50%; transform:translateY(-50%); z-index:2;
+  width:330px; max-height:82vh; overflow-y:auto; background:rgba(10,16,30,.72); backdrop-filter:blur(6px);
+  border:1px solid #223052; border-radius:14px; padding:20px 22px; }
+.gi-name { font-size:28px; font-weight:800; letter-spacing:1px; }
+.gi-role { font-size:12px; text-transform:uppercase; letter-spacing:3px; margin-top:2px; }
+.gi-hp { color:#cfe0ff; font-size:14px; margin-top:10px; font-weight:600; }
+.gi-summary { color:#9fb2d6; font-size:13px; line-height:1.45; margin-top:8px; }
+.gi-row { display:flex; gap:10px; margin-top:12px; align-items:flex-start; }
+.gi-key { flex:0 0 64px; font-size:11px; font-weight:700; color:#8aa0c8; background:#16203a;
+  border:1px solid #2a3a5a; border-radius:5px; padding:3px 0; text-align:center; letter-spacing:1px; }
+.gi-ab { color:#cfe0ff; font-size:13px; line-height:1.45; }
+.gi-ab b { color:#eaf2ff; }
+.gi-ab.ult b { color:#ffd23f; }
+.gi-passive { margin-top:14px; font-size:12px; color:#7e91b5; border-top:1px solid #1c2840; padding-top:10px; }
+.gallery-bar { position:absolute; bottom:26px; left:50%; transform:translateX(-50%); z-index:2; display:flex; gap:12px; }
+.gallery-action.primary { background:linear-gradient(90deg,#1a3a5a,#123a52); border-color:#38e8ff; color:#eafcff; }
+.gallery-action.ghost { background:#121a2e; }
 `;

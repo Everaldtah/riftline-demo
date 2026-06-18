@@ -1,6 +1,6 @@
 import { GameMode, type MatchAPI } from "./GameMode";
 
-const ROSTER = ["bulwark", "tidewall", "vex", "halcyon", "lumen", "cogwright"];
+const ROSTER = ["bastion", "kairo", "vex", "lumen", "oriona"];
 
 // Free-for-all vs bots. First to the kill target, or highest at time limit.
 export class Deathmatch extends GameMode {

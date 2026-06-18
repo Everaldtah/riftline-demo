@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { GameMode, type MatchAPI } from "./GameMode";
 
-const ENEMY = ["bulwark", "vex", "lumen"];
-const ALLY = ["tidewall", "cogwright"];
+const ENEMY = ["bastion", "vex", "lumen"];
+const ALLY = ["kairo", "oriona"];
 
 // 3v3 objective: hold the central point to fill your progress bar to 100%.
 export class ControlPoint extends GameMode {

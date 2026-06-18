@@ -54,6 +54,7 @@ export const config = {
     reload: ["KeyR"],
     scoreboard: ["Tab"],
     pause: ["Escape"],
+    heroGallery: ["KeyH"],
   },
 } as const;
 
